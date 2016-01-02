@@ -6,6 +6,7 @@ module Main (main, parseDotCabal, getComponentFromFile) where
 import Control.Arrow
 import Control.Monad (join)
 import Data.Maybe (isJust, maybeToList)
+import Data.Coerce
 import Data.Aeson
 import Data.List
 import System.FilePath ((</>), normalise)
@@ -14,6 +15,7 @@ import System.FilePath ((</>), normalise)
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
+import GHCJS.Foreign.Callback.Internal
 import GHCJS.Types
 -- import GHCJS.Prim (JSException)
 
@@ -28,13 +30,24 @@ import Distribution.ModuleName (toFilePath)
 foreign import javascript safe "$1($2);"
   invokeCallback :: Callback (JSVal -> IO ()) -> JSVal -> IO ()
 
-main :: IO ()
-main = putStrLn "Dummy main"
+foreign import javascript unsafe "exports[$1] = $2;"
+  setExport :: JSString -> Callback a -> IO ()
 
-parseDotCabal :: JSVal -> Callback (JSVal -> IO ()) -> IO ()
+main :: IO ()
+main = do
+  setExport "parseDotCabalSync" =<< syncCallback1' parseDotCabal
+  setExport "getComponentFromFileSync" =<< syncCallback2' getComponentFromFile
+  setExport "parseDotCabal" =<< asyncCallback2 (mkAsync2 parseDotCabal)
+  setExport "getComponentFromFile" =<< asyncCallback3 (mkAsync3 getComponentFromFile)
+
+mkAsync2 :: (JSVal -> IO JSVal) -> JSVal -> JSVal -> IO()
+mkAsync2 f a1 = coerce $ (f a1 >>=) . invokeCallback
+mkAsync3 :: (JSVal -> JSVal -> IO JSVal) -> JSVal -> JSVal -> JSVal -> IO()
+mkAsync3 f a1 a2 = coerce $ (f a1 a2 >>=) . invokeCallback
+
+parseDotCabal :: JSVal -> IO JSVal
 parseDotCabal
   (parsePackageDescription . pFromJSVal -> ParseOk _warnings gpkg)
-  callback
   = do
     let pkg     = package (packageDescription gpkg)
         name    = display $ pkgName    pkg
@@ -59,14 +72,13 @@ parseDotCabal
           , "targets" .= targets
           ]
 
-    invokeCallback callback =<< toJSVal descr
-parseDotCabal _ callback = invokeCallback callback nullRef
+    toJSVal descr
+parseDotCabal _ = return nullRef
 
-getComponentFromFile :: JSVal -> JSVal -> Callback (JSVal -> IO ()) -> IO ()
+getComponentFromFile :: JSVal -> JSVal -> IO JSVal
 getComponentFromFile
   (parsePackageDescription . pFromJSVal -> ParseOk _warnings gpkg)
   (normalise . pFromJSVal -> file)
-  callback
   = do
     let pkg     = package (packageDescription gpkg)
         name    = display $ pkgName    pkg
@@ -102,5 +114,5 @@ getComponentFromFile
                       bi (BenchmarkUnsupported _) = []
                     in lookupFile "bench:" (second (map Left)) (benchmarkInterface >>> bi) benchmarkBuildInfo
                 ]
-    invokeCallback callback =<< toJSVal list
-getComponentFromFile _ _ callback = invokeCallback callback nullRef
+    toJSVal list
+getComponentFromFile _ _ = return nullRef

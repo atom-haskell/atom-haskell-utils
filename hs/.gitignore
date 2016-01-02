@@ -1,5 +1,6 @@
 *.js_hi
 *.js_o
 Cabal.jsexe
+Exports.js
 HaskellCabal.js
 HaskellCabal.min.js
