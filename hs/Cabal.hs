@@ -1,19 +1,15 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, ViewPatterns #-}
 module Main (main, parseDotCabal, getComponentFromFile) where
 
 -- base
 import Data.Aeson
-import Data.Maybe
 import Data.List
 import System.FilePath ((</>), normalise)
 
 -- ghcjs
 import GHCJS.Marshal
+import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
 import GHCJS.Types
 -- import GHCJS.Prim (JSException)
@@ -33,8 +29,7 @@ main :: IO ()
 main = putStrLn "Dummy main"
 
 parseDotCabal :: JSVal -> Callback (JSVal -> IO ()) -> IO ()
-parseDotCabal jsinput callback = do
-    input <- fromMaybe "" <$> fromJSVal jsinput
+parseDotCabal (pFromJSVal -> input) callback =
     case parsePackageDescription input of
       ParseFailed _err ->
         invokeCallback callback nullRef
@@ -75,7 +70,7 @@ parseDotCabal jsinput callback = do
               , "targets" .= targets
               ]
 
-        invokeCallback callback =<< toJSVal_aeson descr
+        invokeCallback callback =<< toJSVal descr
 
 lookupFile :: FilePath -> [FilePath] -> [ModuleName] -> [FilePath] -> Bool
 lookupFile file sourceDirs modules files =
@@ -86,9 +81,7 @@ lookupFile file sourceDirs modules files =
     nf = normalise file
 
 getComponentFromFile :: JSVal -> JSVal -> Callback (JSVal -> IO ()) -> IO ()
-getComponentFromFile jsinput jsfile callback = do
-    input <- fromMaybe "" <$> fromJSVal jsinput
-    file <- fromMaybe "" <$> fromJSVal jsfile
+getComponentFromFile (pFromJSVal -> input) (pFromJSVal -> file) callback =
     case parsePackageDescription input of
       ParseFailed _err ->
         invokeCallback callback nullRef
@@ -137,4 +130,4 @@ getComponentFromFile jsinput jsfile callback = do
                         in
                           [ "bench:" ++ bench | lookupFile file sourceDirs' otherModules' modulePaths']
                     ]
-        invokeCallback callback =<< toJSVal_aeson list
+        invokeCallback callback =<< toJSVal list
