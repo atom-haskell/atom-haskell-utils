@@ -1,0 +1,20 @@
+{
+  "name": "atom-haskell-utils",
+  "version": "0.2.0",
+  "description": "Various utility functions utilized by atom-haskell packages",
+  "main": "./lib/util.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "coffee -o lib -c src/*.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atom-haskell/atom-haskell-utils.git"
+  },
+  "author": "Nikolay Yakimov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/atom-haskell/atom-haskell-utils/issues"
+  },
+  "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme"
+}
