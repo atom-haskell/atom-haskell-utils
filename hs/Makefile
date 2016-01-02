@@ -1,3 +1,5 @@
+all: HaskellCabal.js HaskellCabal.min.js
+
 Cabal.jsexe/out.js: Cabal.hs
 	# ghcjs rev. 561365ba1667053b5dc5846e2a8edb33eaa3f6dd
 	ghcjs -DGHCJS_BROWSER Cabal.hs
