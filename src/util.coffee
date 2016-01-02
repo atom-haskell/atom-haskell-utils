@@ -1,4 +1,5 @@
 {Directory, File} = require 'atom'
+HS = -> require '../hs/HaskellCabal.min.js'
 
 module.exports = Util =
   getRootDirFallback: (file) ->
@@ -37,3 +38,6 @@ module.exports = Util =
     unless dir?.isDirectory?()
       dir = Util.getRootDirFallback file
     return dir
+
+  parseDotCabal: (a...) -> HS().parseDotCabal(a...)
+  getComponentFromFile: (a...) -> HS().getComponentFromFile(a...)
