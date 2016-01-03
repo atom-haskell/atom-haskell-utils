@@ -5,7 +5,8 @@
   "main": "./lib/util.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "coffee -o lib -c src/*.coffee"
+    "prepublish": "coffee -o lib -c src/*.coffee",
+    "preversion": "preversion.coffee || exit 0"
   },
   "repository": {
     "type": "git",
