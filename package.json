@@ -1,6 +1,6 @@
 {
   "name": "atom-haskell-utils",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Various utility functions utilized by atom-haskell packages",
   "main": "./lib/util.js",
   "scripts": {
