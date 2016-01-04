@@ -43,3 +43,5 @@ module.exports = Util =
   getComponentFromFile: (a...) -> HS().getComponentFromFile(a...)
   parseDotCabalSync: (a...) -> HS().parseDotCabalSync(a...)
   getComponentFromFileSync: (a...) -> HS().getComponentFromFileSync(a...)
+  unlit: (a...) -> HS().unlit(a...)
+  unlitSync: (a...) -> HS().unlitSync(a...)

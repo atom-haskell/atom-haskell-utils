@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE OverloadedStrings, ViewPatterns, TupleSections #-}
-module Main (main, parseDotCabal, getComponentFromFile) where
+module Main (main) where
 
 -- base
 import Control.Arrow
@@ -17,7 +17,6 @@ import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
 import GHCJS.Foreign.Callback.Internal
 import GHCJS.Types
--- import GHCJS.Prim (JSException)
 
 -- Cabal
 import Distribution.PackageDescription
@@ -26,9 +25,13 @@ import Distribution.PackageDescription.Parse
 import Distribution.Text
 import Distribution.Package
 import Distribution.ModuleName (toFilePath)
+import Distribution.Simple.PreProcess.Unlit (unlit)
 
 foreign import javascript safe "$1($2);"
   invokeCallback :: Callback (JSVal -> IO ()) -> JSVal -> IO ()
+
+foreign import javascript safe "$1($2, $3);"
+  invokeCallback2 :: Callback (JSVal -> JSVal -> IO ()) -> JSVal -> JSVal -> IO ()
 
 foreign import javascript unsafe "exports[$1] = $2;"
   setExport :: JSString -> Callback a -> IO ()
@@ -39,11 +42,26 @@ main = do
   setExport "getComponentFromFileSync" =<< syncCallback2' getComponentFromFile
   setExport "parseDotCabal" =<< asyncCallback2 (mkAsync2 parseDotCabal)
   setExport "getComponentFromFile" =<< asyncCallback3 (mkAsync3 getComponentFromFile)
+  setExport "unlitSync" =<< syncCallback2' unlitSync
+  setExport "unlit" =<< asyncCallback3 (coerce unlitAsync)
 
 mkAsync2 :: (JSVal -> IO JSVal) -> JSVal -> JSVal -> IO()
 mkAsync2 f a1 = coerce $ (f a1 >>=) . invokeCallback
 mkAsync3 :: (JSVal -> JSVal -> IO JSVal) -> JSVal -> JSVal -> JSVal -> IO()
 mkAsync3 f a1 a2 = coerce $ (f a1 a2 >>=) . invokeCallback
+
+unlitSync :: JSVal -> JSVal -> IO JSVal
+unlitSync (pFromJSVal -> file) (pFromJSVal -> src) =
+  case unlit file src of
+    Left plainsrc -> toJSVal plainsrc
+    Right err -> toJSVal $ object ["error" .= err]
+
+unlitAsync :: JSVal -> JSVal -> Callback (JSVal -> JSVal -> IO ()) -> IO ()
+unlitAsync (pFromJSVal -> file) (pFromJSVal -> src) callback = do
+  args <- case unlit file src of
+            Left plainsrc -> (nullRef,) <$> toJSVal plainsrc
+            Right err -> (,nullRef) <$> toJSVal err
+  uncurry (invokeCallback2 callback) args
 
 parseDotCabal :: JSVal -> IO JSVal
 parseDotCabal
