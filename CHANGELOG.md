@@ -1,3 +1,10 @@
+## 0.5.0
+* HsUnlit
+* Build hs parts in prepublish
+* Add CHANGELOG
+* preversion: write changelog
+* Ignore npm-debug.log
+
 ## 0.4.0
 * Synchronous Haskell functions
 * Remove 'main' from Export.js
