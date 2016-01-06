@@ -1,7 +1,19 @@
 {Directory, File} = require 'atom'
+fs = require 'fs'
 HS = -> require '../hs/HaskellCabal.min.js'
 
 module.exports = Util =
+  isDirectory: (dir) ->
+    switch
+      when dir instanceof Directory
+        return fs.statSync(dir.getPath()).isDirectory()
+      when dir instanceof File
+        return fs.statSync(dir.getPath()).isDirectory()
+      when typeof dir is 'string'
+        return fs.statSync(dir).isDirectory()
+      else
+        return false
+
   getRootDirFallback: (file) ->
     [dir] = atom.project.getDirectories().filter (dir) ->
       dir.contains(file?.getPath?())
@@ -9,7 +21,7 @@ module.exports = Util =
       dir = atom.project.getDirectories()[0]
     if dir?.getPath?() is 'atom://config'
       dir = null
-    unless dir?.isDirectory?()
+    unless Util.isDirectory(dir)
       dir = file?.getParent?() ? new Directory '.'
     dir
 
@@ -27,15 +39,16 @@ module.exports = Util =
         d = d?.getParent?()
       d if check d
     file =
-      if bufferOrFileOrString.file?
-        bufferOrFileOrString.file?
-      else if bufferOrFileOrString instanceof File
-        bufferOrFileOrString
-      else if typeof bufferOrFileOrString is 'string'
-        new File(bufferOrFileOrString)
+      switch
+        when bufferOrFileOrString.file?
+          bufferOrFileOrString.file?
+        when bufferOrFileOrString instanceof File
+          bufferOrFileOrString
+        when typeof bufferOrFileOrString is 'string'
+          new File(bufferOrFileOrString)
     dir = file?.getParent?() ? Util.getRootDirFallback file
     dir = findProjectRoot(dir, dirHasCabalFile) ? findProjectRoot(dir, dirHasSandboxFile)
-    unless dir?.isDirectory?()
+    unless Util.isDirectory(dir)
       dir = Util.getRootDirFallback file
     return dir
 
