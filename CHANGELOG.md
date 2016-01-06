@@ -1,3 +1,6 @@
+## 0.6.1
+* Another nasty getRootDir
+
 ## 0.6.0
 * Fix isDirectory()
 
