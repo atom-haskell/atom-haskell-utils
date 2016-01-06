@@ -1,3 +1,6 @@
+## 0.6.0
+* Fix isDirectory()
+
 ## 0.5.0
 * HsUnlit
 * Build hs parts in prepublish
