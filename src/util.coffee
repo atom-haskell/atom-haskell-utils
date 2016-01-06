@@ -41,7 +41,7 @@ module.exports = Util =
     file =
       switch
         when bufferOrFileOrString.file?
-          bufferOrFileOrString.file?
+          bufferOrFileOrString.file
         when bufferOrFileOrString instanceof File
           bufferOrFileOrString
         when typeof bufferOrFileOrString is 'string'
