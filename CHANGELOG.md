@@ -1,3 +1,6 @@
+## 0.6.3
+* Really fix nasty throw problem
+
 ## 0.6.2
 * Handle possible statSync errors
 
