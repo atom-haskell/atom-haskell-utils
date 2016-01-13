@@ -5,10 +5,8 @@ HS = -> require '../hs/HaskellCabal.min.js'
 module.exports = Util =
   isDirectory: (dir) ->
     switch
-      when dir instanceof Directory
-        return fs.statSync(dir.getPath()).isDirectory()
-      when dir instanceof File
-        return fs.statSync(dir.getPath()).isDirectory()
+      when (dir instanceof Directory) or (dir instanceof File)
+        return Util.isDirectory(dir.getPath())
       when typeof dir is 'string'
         return ((try fs.statSync(dir).isDirectory()) ? false)
       else
