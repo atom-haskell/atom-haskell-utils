@@ -10,7 +10,7 @@ module.exports = Util =
       when dir instanceof File
         return fs.statSync(dir.getPath()).isDirectory()
       when typeof dir is 'string'
-        return fs.statSync(dir).isDirectory()
+        return ((try fs.statSync(dir).isDirectory()) ? false)
       else
         return false
 
