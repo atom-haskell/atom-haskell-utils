@@ -1,3 +1,6 @@
+## 0.6.2
+* Handle possible statSync errors
+
 ## 0.6.1
 * Another nasty getRootDir
 
