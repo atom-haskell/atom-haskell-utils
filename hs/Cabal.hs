@@ -107,10 +107,10 @@ getComponentFromFile
               >>> second fst &&& snd . snd -- assoc :: (a,(b,c)) -> ((a,b),c)
               >>> first (fjoin >>> uncurry (++))
               $   condTreeData tree
-            check = or $
+            check = any (
               either (any (`isPrefixOf` file) . genFP . toFilePath)
-                     (elem file . genFP)
-                `map` modules
+                     (elem file . genFP))
+              modules
               where
                 genFP f = map (normalise . (</> f)) sourceDirs
             in
