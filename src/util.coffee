@@ -56,3 +56,5 @@ module.exports = Util =
   getComponentFromFileSync: (a...) -> HS().getComponentFromFileSync(a...)
   unlit: (a...) -> HS().unlit(a...)
   unlitSync: (a...) -> HS().unlitSync(a...)
+  parseHsModuleImports: (a...) -> HS().parseHsModuleImports(a...)
+  parseHsModuleImportsSync: (a...) -> HS().parseHsModuleImportsSync(a...)
