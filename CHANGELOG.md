@@ -1,3 +1,11 @@
+## 0.7.0
+* parseHsModuleImports
+* Added closurecompiler to devDependencies
+* -DGHCJS_BROWSER
+* Makefile tweaks
+* Use stack to build ghcjs
+* Lint
+
 ## 0.6.3
 * Really fix nasty throw problem
 
