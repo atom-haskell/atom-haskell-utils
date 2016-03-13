@@ -8,6 +8,7 @@ import Control.Monad (join)
 import Data.Maybe (isJust, maybeToList)
 import Data.Coerce
 import Data.Aeson
+import qualified Data.Aeson.Types as JST
 import Data.List
 import System.FilePath ((</>), normalise)
 
@@ -31,13 +32,23 @@ import Distribution.Simple.PreProcess.Unlit (unlit)
 import qualified Language.Haskell.Exts.Parser as HSP
 import qualified Language.Haskell.Exts.Syntax as S
 
+toJsonOpts :: JST.Options
+toJsonOpts = JST.defaultOptions {JST.sumEncoding=JST.ObjectWithSingleField}
+
 instance ToJSON S.ModuleName where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.ImportDecl where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.ImportSpec where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.Name where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.CName where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.Namespace where
+  toJSON     = genericToJSON toJsonOpts
 instance ToJSON S.SrcLoc where
+  toJSON     = genericToJSON toJsonOpts
 
 foreign import javascript safe "$1($2);"
   invokeCallback :: Callback (JSVal -> IO ()) -> JSVal -> IO ()
