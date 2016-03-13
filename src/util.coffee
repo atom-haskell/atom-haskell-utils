@@ -1,6 +1,6 @@
 {Directory, File} = require 'atom'
 fs = require 'fs'
-HS = -> require '../hs/HaskellCabal.min.js'
+HS = -> require '../hs/hs.min.js'
 
 module.exports = Util =
   isDirectory: (dir) ->

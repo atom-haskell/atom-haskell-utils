@@ -2,5 +2,6 @@
 *.js_o
 Cabal.jsexe
 Exports.js
-HaskellCabal.js
-HaskellCabal.min.js
+hs.js
+hs.min.js
+.stack-work

@@ -27,6 +27,18 @@ import Distribution.Package
 import Distribution.ModuleName (toFilePath)
 import Distribution.Simple.PreProcess.Unlit (unlit)
 
+-- parser
+import qualified Language.Haskell.Exts.Parser as HSP
+import qualified Language.Haskell.Exts.Syntax as S
+
+instance ToJSON S.ModuleName where
+instance ToJSON S.ImportDecl where
+instance ToJSON S.ImportSpec where
+instance ToJSON S.Name where
+instance ToJSON S.CName where
+instance ToJSON S.Namespace where
+instance ToJSON S.SrcLoc where
+
 foreign import javascript safe "$1($2);"
   invokeCallback :: Callback (JSVal -> IO ()) -> JSVal -> IO ()
 
@@ -44,6 +56,8 @@ main = do
   setExport "getComponentFromFile" =<< asyncCallback3 (mkAsync3 getComponentFromFile)
   setExport "unlitSync" =<< syncCallback2' unlitSync
   setExport "unlit" =<< asyncCallback3 (coerce unlitAsync)
+  setExport "parseHsModuleImports" =<< asyncCallback2 (mkAsync2 parseHsModuleImports)
+  setExport "parseHsModuleImportsSync" =<< syncCallback1' parseHsModuleImports
 
 mkAsync2 :: (JSVal -> IO JSVal) -> JSVal -> JSVal -> IO()
 mkAsync2 f a1 = coerce $ (f a1 >>=) . invokeCallback
@@ -134,3 +148,12 @@ getComponentFromFile
                 ]
     toJSVal list
 getComponentFromFile _ _ = return nullRef
+
+parseHsModuleImports :: JSVal -> IO JSVal
+parseHsModuleImports = toJSVal . enc . HSP.unNonGreedy . HSP.fromParseResult . HSP.parse . pFromJSVal
+  where
+    enc (HSP.ModuleHeadAndImports _pragma (name, _warning, _exports) imports) =
+      object
+        [ "name" .= name
+        , "imports" .= imports
+        ]
