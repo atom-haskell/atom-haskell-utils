@@ -1,3 +1,6 @@
+## 0.7.1
+* Use ObjectWithSingleField
+
 ## 0.7.0
 * parseHsModuleImports
 * Added closurecompiler to devDependencies
