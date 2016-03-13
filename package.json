@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/atom-haskell/atom-haskell-utils/issues"
   },
-  "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme"
+  "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme",
+  "devDependencies": {
+    "closurecompiler": "latest"
+  }
 }
