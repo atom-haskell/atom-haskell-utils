@@ -1,3 +1,6 @@
+## 0.7.3
+* Fix bug with last commit
+
 ## 0.7.2
 * Support passing directory to getRootDir
 
