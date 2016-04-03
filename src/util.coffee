@@ -42,9 +42,15 @@ module.exports = Util =
           bufferOrFileOrString.file
         when bufferOrFileOrString instanceof File
           bufferOrFileOrString
+        when bufferOrFileOrString instanceof Directory
+          bufferOrFileOrString
         when typeof bufferOrFileOrString is 'string'
           new File(bufferOrFileOrString)
-    dir = file?.getParent?() ? Util.getRootDirFallback file
+    dir =
+      if Util.isDirectory(file)
+        file
+      else
+        file?.getParent?() ? Util.getRootDirFallback file
     dir = findProjectRoot(dir, dirHasCabalFile) ? findProjectRoot(dir, dirHasSandboxFile)
     unless Util.isDirectory(dir)
       dir = Util.getRootDirFallback file
