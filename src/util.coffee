@@ -48,7 +48,7 @@ module.exports = Util =
           new File(bufferOrFileOrString)
     dir =
       if Util.isDirectory(file)
-        file
+        new Directory(file.getPath())
       else
         file?.getParent?() ? Util.getRootDirFallback file
     dir = findProjectRoot(dir, dirHasCabalFile) ? findProjectRoot(dir, dirHasSandboxFile)
