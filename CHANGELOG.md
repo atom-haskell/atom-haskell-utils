@@ -1,3 +1,6 @@
+## 0.7.2
+* Support passing directory to getRootDir
+
 ## 0.7.1
 * Use ObjectWithSingleField
 
