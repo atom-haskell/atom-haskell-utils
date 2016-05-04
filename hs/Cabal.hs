@@ -67,7 +67,7 @@ main = do
   setExport "getComponentFromFile" =<< asyncCallback3 (mkAsync3 getComponentFromFile)
   setExport "unlitSync" =<< syncCallback2' unlitSync
   setExport "unlit" =<< asyncCallback3 (coerce unlitAsync)
-  setExport "parseHsModuleImports" =<< asyncCallback2 (mkAsync2 parseHsModuleImports)
+  setExport "parseHsModuleImports" =<< asyncCallback2 (mkAsync2 parseHsModuleImportsNoThrow)
   setExport "parseHsModuleImportsSync" =<< syncCallback1' parseHsModuleImports
 
 mkAsync2 :: (JSVal -> IO JSVal) -> JSVal -> JSVal -> IO()
@@ -163,6 +163,23 @@ getComponentFromFile _ _ = return nullRef
 parseHsModuleImports :: JSVal -> IO JSVal
 parseHsModuleImports = toJSVal . enc . HSP.unNonGreedy . HSP.fromParseResult . HSP.parse . pFromJSVal
   where
+    enc (HSP.ModuleHeadAndImports _pragma (name, _warning, _exports) imports) =
+      object
+        [ "name" .= name
+        , "imports" .= imports
+        ]
+
+parseHsModuleImportsNoThrow :: JSVal -> IO JSVal
+parseHsModuleImportsNoThrow = toJSVal . enc1 . HSP.parse . pFromJSVal
+  where
+    enc1 (HSP.ParseOk x) = enc $ HSP.unNonGreedy x
+    enc1 (HSP.ParseFailed loc err) =
+      object
+        [ "error" .= err
+        , "line" .= S.srcLine loc
+        , "col"  .= S.srcColumn loc
+        , "file" .= S.srcFilename loc
+        ]
     enc (HSP.ModuleHeadAndImports _pragma (name, _warning, _exports) imports) =
       object
         [ "name" .= name
