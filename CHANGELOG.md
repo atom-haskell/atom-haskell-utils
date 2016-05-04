@@ -1,3 +1,6 @@
+## 0.7.4
+* Don't throw in parseHsModuleImports async callback
+
 ## 0.7.3
 * Fix bug with last commit
 
