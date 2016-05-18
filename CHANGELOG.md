@@ -1,3 +1,6 @@
+## 0.7.7
+* Use duck-typing
+
 ## 0.7.6
 * Fix bug
 
