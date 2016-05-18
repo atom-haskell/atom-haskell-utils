@@ -3,9 +3,12 @@ fs = require 'fs'
 HS = -> require '../hs/hs.min.js'
 
 module.exports = Util =
+  isType: (obj, type) ->
+    Object.prototype.toString.call(obj) is "[object #{type}]"
+
   isDirectory: (dir) ->
     switch
-      when (dir instanceof Directory) or (dir instanceof File)
+      when isType(dir, 'Directory') or isType(dir, 'File')
         return Util.isDirectory(dir.getPath())
       when typeof dir is 'string'
         return ((try fs.statSync(dir).isDirectory()) ? false)
@@ -40,9 +43,7 @@ module.exports = Util =
       switch
         when bufferOrFileOrString.file?
           bufferOrFileOrString.file
-        when bufferOrFileOrString instanceof File
-          bufferOrFileOrString
-        when bufferOrFileOrString instanceof Directory
+        when isType(bufferOrFileOrString, 'File') or isType(bufferOrFileOrString, 'Directory')
           bufferOrFileOrString
         when typeof bufferOrFileOrString is 'string'
           new File(bufferOrFileOrString)
