@@ -5,7 +5,7 @@ HS = -> require '../hs/hs.min.js'
 module.exports = Util =
   isDirectory: (dir) ->
     switch
-      when typeof dir.getPath is 'function'
+      when typeof dir?.getPath is 'function'
         return Util.isDirectory(dir.getPath())
       when typeof dir is 'string'
         return ((try fs.statSync(dir).isDirectory()) ? false)
