@@ -1,3 +1,6 @@
+## 0.7.8
+* Dir can be undefined
+
 ## 0.7.7
 * Use duck-typing
 
