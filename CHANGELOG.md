@@ -1,3 +1,6 @@
+## 0.7.6
+* Fix bug
+
 ## 0.7.5
 * Eschew instanceof
 
