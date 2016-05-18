@@ -8,7 +8,7 @@ module.exports = Util =
 
   isDirectory: (dir) ->
     switch
-      when isType(dir, 'Directory') or isType(dir, 'File')
+      when Util.isType(dir, 'Directory') or Util.isType(dir, 'File')
         return Util.isDirectory(dir.getPath())
       when typeof dir is 'string'
         return ((try fs.statSync(dir).isDirectory()) ? false)
@@ -43,7 +43,7 @@ module.exports = Util =
       switch
         when bufferOrFileOrString.file?
           bufferOrFileOrString.file
-        when isType(bufferOrFileOrString, 'File') or isType(bufferOrFileOrString, 'Directory')
+        when Util.isType(bufferOrFileOrString, 'File') or Util.isType(bufferOrFileOrString, 'Directory')
           bufferOrFileOrString
         when typeof bufferOrFileOrString is 'string'
           new File(bufferOrFileOrString)
