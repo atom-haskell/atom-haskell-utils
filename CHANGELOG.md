@@ -1,3 +1,6 @@
+## 0.7.5
+* Eschew instanceof
+
 ## 0.7.4
 * Don't throw in parseHsModuleImports async callback
 
