@@ -1,10 +1,11 @@
-resolver: lts-5.6
+resolver: lts-5.12
 packages:
 - '.'
-compiler: ghcjs-0.2.0.20151230.3_ghc-7.10.2
+compiler: ghcjs-0.2.0.20160414_ghc-7.10.2
 compiler-check: match-exact
 setup-info:
- ghcjs:
-  source:
-   ghcjs-0.2.0.20151230.3_ghc-7.10.2:
-    url: "https://github.com/nrolland/ghcjs/releases/download/v.0.2.0.20151230.3/ghcjs-0.2.0.20151230.3.tar.gz"
+  ghcjs:
+    source:
+      ghcjs-0.2.0.20160414_ghc-7.10.2:
+        url: https://s3.amazonaws.com/ghcjs/ghcjs-0.2.0.20160414_ghc-7.10.2.tar.gz
+        sha1: f0a7243e781e27ebfe601eebaf5c57422007c142
