@@ -1,3 +1,6 @@
+## 0.7.9
+* Update ghcjs and stack resolver
+
 ## 0.7.8
 * Dir can be undefined
 
