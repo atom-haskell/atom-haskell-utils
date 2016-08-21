@@ -1,6 +1,8 @@
 resolver: lts-5.12
 packages:
 - '.'
+extra-deps:
+  - 'haskell-src-exts-1.18.2'
 compiler: ghcjs-0.2.0.20160414_ghc-7.10.2
 compiler-check: match-exact
 setup-info:

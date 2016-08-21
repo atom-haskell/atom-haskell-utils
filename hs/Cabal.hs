@@ -1,14 +1,12 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE OverloadedStrings, ViewPatterns, TupleSections #-}
-module Main (main) where
+module Cabal where
 
 -- base
 import Control.Arrow
 import Control.Monad (join)
 import Data.Maybe (isJust, maybeToList)
-import Data.Coerce
 import Data.Aeson
-import qualified Data.Aeson.Types as JST
 import Data.List
 import System.FilePath ((</>), normalise)
 
@@ -16,7 +14,6 @@ import System.FilePath ((</>), normalise)
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
-import GHCJS.Foreign.Callback.Internal
 import GHCJS.Types
 
 -- Cabal
@@ -28,52 +25,7 @@ import Distribution.Package
 import Distribution.ModuleName (toFilePath)
 import Distribution.Simple.PreProcess.Unlit (unlit)
 
--- parser
-import qualified Language.Haskell.Exts.Parser as HSP
-import qualified Language.Haskell.Exts.Syntax as S
-
-toJsonOpts :: JST.Options
-toJsonOpts = JST.defaultOptions {JST.sumEncoding=JST.ObjectWithSingleField}
-
-instance ToJSON S.ModuleName where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.ImportDecl where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.ImportSpec where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.Name where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.CName where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.Namespace where
-  toJSON     = genericToJSON toJsonOpts
-instance ToJSON S.SrcLoc where
-  toJSON     = genericToJSON toJsonOpts
-
-foreign import javascript safe "$1($2);"
-  invokeCallback :: Callback (JSVal -> IO ()) -> JSVal -> IO ()
-
-foreign import javascript safe "$1($2, $3);"
-  invokeCallback2 :: Callback (JSVal -> JSVal -> IO ()) -> JSVal -> JSVal -> IO ()
-
-foreign import javascript unsafe "exports[$1] = $2;"
-  setExport :: JSString -> Callback a -> IO ()
-
-main :: IO ()
-main = do
-  setExport "parseDotCabalSync" =<< syncCallback1' parseDotCabal
-  setExport "getComponentFromFileSync" =<< syncCallback2' getComponentFromFile
-  setExport "parseDotCabal" =<< asyncCallback2 (mkAsync2 parseDotCabal)
-  setExport "getComponentFromFile" =<< asyncCallback3 (mkAsync3 getComponentFromFile)
-  setExport "unlitSync" =<< syncCallback2' unlitSync
-  setExport "unlit" =<< asyncCallback3 (coerce unlitAsync)
-  setExport "parseHsModuleImports" =<< asyncCallback2 (mkAsync2 parseHsModuleImportsNoThrow)
-  setExport "parseHsModuleImportsSync" =<< syncCallback1' parseHsModuleImports
-
-mkAsync2 :: (JSVal -> IO JSVal) -> JSVal -> JSVal -> IO()
-mkAsync2 f a1 = coerce $ (f a1 >>=) . invokeCallback
-mkAsync3 :: (JSVal -> JSVal -> IO JSVal) -> JSVal -> JSVal -> JSVal -> IO()
-mkAsync3 f a1 a2 = coerce $ (f a1 a2 >>=) . invokeCallback
+import Foreign (invokeCallback2)
 
 unlitSync :: JSVal -> JSVal -> IO JSVal
 unlitSync (pFromJSVal -> file) (pFromJSVal -> src) =
@@ -159,29 +111,3 @@ getComponentFromFile
                 ]
     toJSVal list
 getComponentFromFile _ _ = return nullRef
-
-parseHsModuleImports :: JSVal -> IO JSVal
-parseHsModuleImports = toJSVal . enc . HSP.unNonGreedy . HSP.fromParseResult . HSP.parse . pFromJSVal
-  where
-    enc (HSP.ModuleHeadAndImports _pragma (name, _warning, _exports) imports) =
-      object
-        [ "name" .= name
-        , "imports" .= imports
-        ]
-
-parseHsModuleImportsNoThrow :: JSVal -> IO JSVal
-parseHsModuleImportsNoThrow = toJSVal . enc1 . HSP.parse . pFromJSVal
-  where
-    enc1 (HSP.ParseOk x) = enc $ HSP.unNonGreedy x
-    enc1 (HSP.ParseFailed loc err) =
-      object
-        [ "error" .= err
-        , "line" .= S.srcLine loc
-        , "col"  .= S.srcColumn loc
-        , "file" .= S.srcFilename loc
-        ]
-    enc (HSP.ModuleHeadAndImports _pragma (name, _warning, _exports) imports) =
-      object
-        [ "name" .= name
-        , "imports" .= imports
-        ]
