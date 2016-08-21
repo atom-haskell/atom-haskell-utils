@@ -2,7 +2,7 @@ ROOT=$(shell stack path --local-install-root)
 
 all: hs.min.js
 
-hs.jsexe: Cabal.hs hs.cabal stack.yaml
+hs.jsexe: src hs.cabal stack.yaml
 	stack build
 
 hs.js: hs.jsexe
