@@ -1,3 +1,7 @@
+## 0.8.0
+* Move haskell sources to src
+* Parse LANGUAGE pragmas, parser interface, split hs
+
 ## 0.7.9
 * Update ghcjs and stack resolver
 
