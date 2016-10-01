@@ -1,3 +1,7 @@
+## 0.9.0
+* Add hsEscapeString
+* Bump compiler version
+
 ## 0.8.0
 * Move haskell sources to src
 * Parse LANGUAGE pragmas, parser interface, split hs
