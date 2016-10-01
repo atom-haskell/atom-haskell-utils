@@ -9,7 +9,7 @@ author: Nikolay Yakimov
 
 executable hs
     main-is: Main.hs
-    other-modules: Parser, Cabal, Foreign
+    other-modules: Parser, Cabal, Foreign, Util
     hs-source-dirs: src
     build-depends:
         base >=4.8 && <4.9,

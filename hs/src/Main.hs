@@ -13,6 +13,7 @@ import GHCJS.Foreign.Callback.Internal
 import Foreign
 import Cabal
 import Parser
+import Util
 
 main :: IO ()
 main = do
@@ -24,3 +25,4 @@ main = do
   setExport "unlit" =<< asyncCallback3 (coerce unlitAsync)
   setExport "parseHsModuleImports" =<< asyncCallback2 (mkAsync2 parseHsModuleImportsNoThrow)
   setExport "parseHsModuleImportsSync" =<< syncCallback1' parseHsModuleImports
+  setExport "hsEscapeString" =<< syncCallback1' hsEscapeString

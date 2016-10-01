@@ -62,3 +62,4 @@ module.exports = Util =
   unlitSync: (a...) -> HS().unlitSync(a...)
   parseHsModuleImports: (a...) -> HS().parseHsModuleImports(a...)
   parseHsModuleImportsSync: (a...) -> HS().parseHsModuleImportsSync(a...)
+  hsEscapeString: (a...) -> HS().hsEscapeString(a...)
