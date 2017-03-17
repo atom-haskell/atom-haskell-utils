@@ -1,3 +1,11 @@
+## 1.0.0
+* No preversion ^\_^
+* [API] Promise-based hs interface; no sync variants
+* [API CHANGE] async getRootDir; TypeScript
+* Update hs build system
+* nodejs externs for ccjs
+* Update LICENSE
+
 ## 0.9.0
 * Add hsEscapeString
 * Bump compiler version
