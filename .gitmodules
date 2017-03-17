@@ -1,0 +1,3 @@
+[submodule "hs/nodejs-externs"]
+	path = hs/nodejs-externs
+	url = https://github.com/dcodeIO/node.js-closure-compiler-externs.git
