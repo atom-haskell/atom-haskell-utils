@@ -1,4 +1,5 @@
 ROOT=$(shell stack path --local-install-root)
+EXTERNS=$(shell find nodejs-externs/ -maxdepth 1 -name '*.js' | sed 's/^/--externs=/')
 
 all: hs.min.js
 
@@ -10,10 +11,7 @@ hs.js: hs.jsexe
 	sed 's/^h\$$main(/h\$$runSync(/' $(ROOT)/bin/hs.jsexe/runmain.js >> hs.js
 
 hs.min.js: hs.js
-	../node_modules/.bin/ccjs hs.js \
-		--compilation_level=SIMPLE_OPTIMIZATIONS \
-		--externs=node \
-		> hs.min.js
+	closure-compiler hs.js --compilation_level=ADVANCED_OPTIMIZATIONS $(EXTERNS) --externs=$(ROOT)/bin/hs.jsexe/all.js.externs > hs.min.js
 
 .PHONY: clean
 clean:
