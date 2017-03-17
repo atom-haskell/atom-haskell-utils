@@ -1,3 +1,4 @@
 src
-coffeelint.json
 npm-debug.log
+tsconfig.json
+tslint.json
