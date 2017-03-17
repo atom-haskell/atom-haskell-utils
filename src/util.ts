@@ -101,17 +101,46 @@ export async function getRootDir (input: TextBuffer | File | string | null): Pro
   return dir
 }
 
-export const {
-  parseDotCabal,
-  getComponentFromFile,
-  parseDotCabalSync,
-  getComponentFromFileSync,
-  unlit,
-  unlitSync,
-  parseHsModuleImports,
-  parseHsModuleImportsSync,
-  hsEscapeString,
-} = require('../hs/hs.min.js') as IHS
+const HS = require('../hs/hs.min.js') as IHS
+
+export async function parseDotCabal (cabalSource: string): Promise<IDotCabal | null> {
+  return new Promise<IDotCabal | null>((resolve) => {
+    HS.parseDotCabal(cabalSource, resolve)
+  })
+}
+export async function getComponentFromFile (cabalSource: string, filePath: string): Promise<string[]> {
+  return new Promise<string[]>((resolve) => {
+    HS.getComponentFromFile(cabalSource, filePath, resolve)
+  })
+}
+export async function unlit (filename: string, source: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    HS.unlit(filename, source, (error, result) => {
+      if (error) {
+        reject(new Error(error))
+      } else if (result) {
+        resolve(result)
+      } else {
+        reject(new Error('Unknown error when trying to run unlit'))
+      }
+    })
+  })
+}
+function isErrorResult (x): x is {error: string} {
+  return x && x.error && typeof x.error === 'string'
+}
+export async function parseHsModuleImports (source: string): Promise<IModuleImports> {
+  return new Promise<IModuleImports>((resolve, reject) => {
+    HS.parseHsModuleImports(source, (result) => {
+      if (isErrorResult(result)) {
+        reject(new Error(result.error))
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
+export let {hsEscapeString} = HS
 
 export interface ITarget {
   type: 'library' | 'executable' | 'test-suite' | 'benchmark'
