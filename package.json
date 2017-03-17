@@ -6,8 +6,7 @@
   "types": "./lib/util.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "tsc && make -C hs",
-    "preversion": "preversion.coffee || exit 0"
+    "prepublish": "tsc && make -C hs"
   },
   "repository": {
     "type": "git",
