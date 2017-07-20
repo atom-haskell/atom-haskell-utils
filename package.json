@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme",
   "devDependencies": {
-    "@types/node": "^7.0.8",
+    "@types/node": "^8.0.14",
     "typescript": "^2.2.1"
   }
 }
