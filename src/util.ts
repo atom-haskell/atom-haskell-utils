@@ -92,8 +92,8 @@ export async function getRootDir (input: TextBuffer | File | string | null): Pro
   } else {
     dir = file && file.getParent() || getRootDirFallback(file)
   }
-  let cabalRoot = await findProjectRoot(dir, dirHasCabalFile)
-  let sandboxRoot = await findProjectRoot(dir, dirHasSandboxFile)
+  const cabalRoot = await findProjectRoot(dir, dirHasCabalFile)
+  const sandboxRoot = await findProjectRoot(dir, dirHasSandboxFile)
   dir = cabalRoot || sandboxRoot
   if (!(dir && isDirectory(dir))) {
     dir = getRootDirFallback(file)
