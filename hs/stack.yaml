@@ -1,7 +1,9 @@
 packages:
 - '.'
 extra-deps:
-  - 'haskell-src-exts-1.18.2'
+  - 'haskell-src-exts-1.19.1'
+  - 'cpphs-1.20.8'
+  - 'polyparse-1.12'
 
 # GHCJS part
 resolver: lts-7.19
