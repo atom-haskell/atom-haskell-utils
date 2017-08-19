@@ -1,15 +1,16 @@
-import {Directory, File, TextBuffer} from 'atom'
+// tslint:disable: no-null-keyword no-var-requires
+import { Directory, File, TextBuffer } from 'atom'
 import * as fs from 'fs'
 
-function hasGetPath (dir): dir is Directory | File {
+function hasGetPath(dir): dir is Directory | File {
   return dir && dir.getPath && typeof dir.getPath === 'function'
 }
 
-function isTextBuffer (x): x is TextBuffer {
+function isTextBuffer(x): x is TextBuffer {
   return x && x.file
 }
 
-export function isDirectory (dir: File | Directory | string | null): boolean {
+export function isDirectory(dir: File | Directory | string | null | any): boolean {
   if (dir === null) {
     return false
   }
@@ -26,7 +27,7 @@ export function isDirectory (dir: File | Directory | string | null): boolean {
   }
 }
 
-export function getRootDirFallback (file: File | Directory | null): Directory {
+export function getRootDirFallback(file: File | Directory | null): Directory {
   let dir: Directory | null = null
   if (file) {
     [dir] = atom.project.getDirectories().filter((d) => d.contains(file.getPath()))
@@ -47,8 +48,8 @@ export function getRootDirFallback (file: File | Directory | null): Directory {
   return dir
 }
 
-export async function getDirEntries (dir: Directory): Promise<Array<Directory|File>> {
-  return new Promise<Array<Directory|File>>((resolve, reject) => dir.getEntries((error, contents) => {
+export async function getDirEntries(dir: Directory): Promise<Array<Directory | File>> {
+  return new Promise<Array<Directory | File>>((resolve, reject) => dir.getEntries((error, contents) => {
     if (error) {
       reject(error)
     } else {
@@ -57,16 +58,16 @@ export async function getDirEntries (dir: Directory): Promise<Array<Directory|Fi
   }))
 }
 
-export async function getRootDir (input: TextBuffer | File | string | null): Promise<Directory> {
-  async function dirHasCabalFile (d: Directory) {
-    if (!d) {return false}
+export async function getRootDir(input: TextBuffer | File | string | null): Promise<Directory> {
+  async function dirHasCabalFile(d: Directory) {
+    if (!d) { return false }
     return (await getDirEntries(d)).some((file) => file.isFile() && file.getBaseName().endsWith('.cabal'))
   }
-  async function dirHasSandboxFile (d: Directory) {
-    if (!d) {return false}
+  async function dirHasSandboxFile(d: Directory) {
+    if (!d) { return false }
     return (await getDirEntries(d)).some((file) => file.isFile() && file.getBaseName() === 'cabal.sandbox.config')
   }
-  async function findProjectRoot (d: Directory, check: (d: Directory) => Promise<boolean>) {
+  async function findProjectRoot(d: Directory, check: (d: Directory) => Promise<boolean>) {
     while (!(d && d.isRoot && d.isRoot() || !d || await check(d))) {
       d = d && d.getParent()
     }
@@ -103,17 +104,17 @@ export async function getRootDir (input: TextBuffer | File | string | null): Pro
 
 const HS = require('../hs/hs.min.js') as IHS
 
-export async function parseDotCabal (cabalSource: string): Promise<IDotCabal | null> {
+export async function parseDotCabal(cabalSource: string): Promise<IDotCabal | null> {
   return new Promise<IDotCabal | null>((resolve) => {
     HS.parseDotCabal(cabalSource, resolve)
   })
 }
-export async function getComponentFromFile (cabalSource: string, filePath: string): Promise<string[]> {
+export async function getComponentFromFile(cabalSource: string, filePath: string): Promise<string[]> {
   return new Promise<string[]>((resolve) => {
     HS.getComponentFromFile(cabalSource, filePath, resolve)
   })
 }
-export async function unlit (filename: string, source: string): Promise<string> {
+export async function unlit(filename: string, source: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     HS.unlit(filename, source, (error, result) => {
       if (error) {
@@ -126,10 +127,10 @@ export async function unlit (filename: string, source: string): Promise<string> 
     })
   })
 }
-function isErrorResult (x): x is {error: string} {
+function isErrorResult(x): x is { error: string } {
   return x && x.error && typeof x.error === 'string'
 }
-export async function parseHsModuleImports (source: string): Promise<IModuleImports> {
+export async function parseHsModuleImports(source: string): Promise<IModuleImports> {
   return new Promise<IModuleImports>((resolve, reject) => {
     HS.parseHsModuleImports(source, (result) => {
       if (isErrorResult(result)) {
@@ -140,7 +141,7 @@ export async function parseHsModuleImports (source: string): Promise<IModuleImpo
     })
   })
 }
-export let {hsEscapeString} = HS
+export let { hsEscapeString } = HS
 
 export interface ITarget {
   type: 'library' | 'executable' | 'test-suite' | 'benchmark'
@@ -158,7 +159,7 @@ export interface IImport {
   name: string
   qualified: boolean
   hiding: boolean
-  importList: null | Array<string | {parent: string}>
+  importList: null | Array<string | { parent: string }>
   alias: null | string
 }
 
@@ -168,19 +169,19 @@ export interface IModuleImports {
 }
 
 export interface IHS {
-  parseDotCabal (cabalSource: string, callback: (result: IDotCabal | null) => void): void
-  parseDotCabalSync (cabalSource: string): IDotCabal
-  getComponentFromFile (cabalSource: string, filePath: string, callback: (result: string[]) => void): void
-  getComponentFromFileSync (cabalSource: string, filePath: string): string[]
-  unlit (
+  parseDotCabal(cabalSource: string, callback: (result: IDotCabal | null) => void): void
+  parseDotCabalSync(cabalSource: string): IDotCabal
+  getComponentFromFile(cabalSource: string, filePath: string, callback: (result: string[]) => void): void
+  getComponentFromFileSync(cabalSource: string, filePath: string): string[]
+  unlit(
     filename: string, source: string,
     callback: (
       error: null | string,
       result: null | string,
     ) => void,
   ): void
-  unlitSync (filename: string, source: string): string | {error: string}
-  parseHsModuleImports (source: string, callback: (result: {error: string} | IModuleImports) => void): void
-  parseHsModuleImportsSync (source: string): IModuleImports
-  hsEscapeString (input: string): string
+  unlitSync(filename: string, source: string): string | { error: string }
+  parseHsModuleImports(source: string, callback: (result: { error: string } | IModuleImports) => void): void
+  parseHsModuleImportsSync(source: string): IModuleImports
+  hsEscapeString(input: string): string
 }
