@@ -20,7 +20,7 @@
   "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme",
   "devDependencies": {
     "@types/node": "^7.0.8",
-    "atom-haskell-tslint-rules": "0.0.5",
+    "atom-haskell-tslint-rules": "0.0.6",
     "tslint": "^5.6.0",
     "typescript": "^2.4.2"
   }
