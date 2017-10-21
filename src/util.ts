@@ -3,10 +3,12 @@ import { Directory, File, TextBuffer } from 'atom'
 import * as fs from 'fs'
 
 function hasGetPath(dir): dir is Directory | File {
+  // tslint:disable-next-line:no-unsafe-any
   return dir && dir.getPath && typeof dir.getPath === 'function'
 }
 
 function isTextBuffer(x): x is TextBuffer {
+  // tslint:disable-next-line:no-unsafe-any
   return x && x.file
 }
 
@@ -128,6 +130,7 @@ export async function unlit(filename: string, source: string): Promise<string> {
   })
 }
 function isErrorResult(x): x is { error: string } {
+  // tslint:disable-next-line:no-unsafe-any
   return x && x.error && typeof x.error === 'string'
 }
 export async function parseHsModuleImports(source: string): Promise<IModuleImports> {
