@@ -1,6 +1,7 @@
 // tslint:disable: no-null-keyword no-var-requires
 import { Directory, File, TextBuffer } from 'atom'
 import * as fs from 'fs'
+import * as path from 'path'
 
 function hasGetPath(dir): dir is Directory | File {
   // tslint:disable-next-line:no-unsafe-any
@@ -112,8 +113,12 @@ export async function parseDotCabal(cabalSource: string): Promise<IDotCabal | nu
   })
 }
 export async function getComponentFromFile(cabalSource: string, filePath: string): Promise<string[]> {
+  const fp =
+    process.platform === 'win32'
+    ? filePath.replace(path.sep, path.posix.sep)
+    : filePath
   return new Promise<string[]>((resolve) => {
-    HS.getComponentFromFile(cabalSource, filePath, resolve)
+    HS.getComponentFromFile(cabalSource, fp, resolve)
   })
 }
 export async function unlit(filename: string, source: string): Promise<string> {
