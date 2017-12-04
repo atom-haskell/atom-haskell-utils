@@ -1,3 +1,8 @@
+## 1.0.1
+* On win32, convert backslash to forward slash before passing to HS code
+* Updated typings
+* atom-haskell-tslint-rules
+
 ## 1.0.0
 * No preversion ^\_^
 * [API] Promise-based hs interface; no sync variants
