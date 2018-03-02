@@ -1,3 +1,4 @@
 *
 !.npmignore
 !hs.min.js
+!hs.min.d.ts

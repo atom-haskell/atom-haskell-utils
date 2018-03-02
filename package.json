@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/atom-haskell/atom-haskell-utils#readme",
   "devDependencies": {
-    "@types/node": "^7.0.8",
-    "atom-haskell-tslint-rules": "0.0.7",
-    "tslint": "^5.6.0",
-    "typescript": "^2.4.2"
+    "@types/atom": "^1.24.1",
+    "@types/node": "^7",
+    "atom-haskell-tslint-rules": "^0.1",
+    "prettier": "^1.11.1",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.2"
   }
 }

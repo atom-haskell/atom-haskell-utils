@@ -1,19 +1,19 @@
-// tslint:disable: no-null-keyword no-var-requires
+// tslint:disable: no-null-keyword
 import { Directory, File, TextBuffer } from 'atom'
 import * as fs from 'fs'
 import * as path from 'path'
 
-function hasGetPath(dir): dir is Directory | File {
-  // tslint:disable-next-line:no-unsafe-any
+function hasGetPath(dir: any): dir is Directory | File {
   return dir && dir.getPath && typeof dir.getPath === 'function'
 }
 
-function isTextBuffer(x): x is TextBuffer {
-  // tslint:disable-next-line:no-unsafe-any
+function isTextBuffer(x: any): x is TextBuffer {
   return x && x.file
 }
 
-export function isDirectory(dir: File | Directory | string | null | any): boolean {
+export function isDirectory(
+  dir: File | Directory | string | null | any,
+): boolean {
   if (dir === null) {
     return false
   }
@@ -33,7 +33,9 @@ export function isDirectory(dir: File | Directory | string | null | any): boolea
 export function getRootDirFallback(file: File | Directory | null): Directory {
   let dir: Directory | null = null
   if (file) {
-    [dir] = atom.project.getDirectories().filter((d) => d.contains(file.getPath()))
+    ;[dir] = atom.project
+      .getDirectories()
+      .filter((d) => d.contains(file.getPath()))
   }
   if (!dir) {
     dir = atom.project.getDirectories()[0]
@@ -51,38 +53,60 @@ export function getRootDirFallback(file: File | Directory | null): Directory {
   return dir
 }
 
-export async function getDirEntries(dir: Directory): Promise<Array<Directory | File>> {
-  return new Promise<Array<Directory | File>>((resolve, reject) => dir.getEntries((error, contents) => {
-    if (error) {
-      reject(error)
-    } else {
-      resolve(contents)
-    }
-  }))
+export async function getDirEntries(
+  dir: Directory,
+): Promise<Array<Directory | File>> {
+  return new Promise<Array<Directory | File>>((resolve, reject) =>
+    dir.getEntries((error, contents) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(contents)
+      }
+    }),
+  )
 }
 
-export async function getRootDir(input: TextBuffer | File | string | null): Promise<Directory> {
-  async function dirHasCabalFile(d: Directory) {
-    if (!d) { return false }
-    return (await getDirEntries(d)).some((file) => file.isFile() && file.getBaseName().endsWith('.cabal'))
+async function dirHasCabalFile(d: Directory) {
+  if (!d) {
+    return false
   }
-  async function dirHasSandboxFile(d: Directory) {
-    if (!d) { return false }
-    return (await getDirEntries(d)).some((file) => file.isFile() && file.getBaseName() === 'cabal.sandbox.config')
+  return (await getDirEntries(d)).some(
+    (file) => file.isFile() && file.getBaseName().endsWith('.cabal'),
+  )
+}
+
+async function dirHasSandboxFile(d: Directory) {
+  if (!d) {
+    return false
   }
-  async function findProjectRoot(d: Directory, check: (d: Directory) => Promise<boolean>) {
-    while (!(d && d.isRoot && d.isRoot() || !d || await check(d))) {
-      d = d && d.getParent()
-    }
-    if (await check(d)) {
-      return d
-    } else {
-      return null
-    }
+  return (await getDirEntries(d)).some(
+    (file) => file.isFile() && file.getBaseName() === 'cabal.sandbox.config',
+  )
+}
+
+async function findProjectRoot(
+  d: Directory,
+  check: (d: Directory) => Promise<boolean>,
+) {
+  while (!(d.isRoot() || (await check(d)))) {
+    d = d && d.getParent()
   }
+  if (await check(d)) {
+    return d
+  } else {
+    return null
+  }
+}
+
+export async function getRootDir(
+  input: TextBuffer | File | string | null,
+): Promise<Directory> {
   let file: File | Directory | null
   if (isTextBuffer(input)) {
-    file = new File(input.getPath())
+    const p = input.getPath()
+    if (p) file = new File(p)
+    else file = null
   } else if (hasGetPath(input)) {
     file = input
   } else if (typeof input === 'string') {
@@ -94,7 +118,7 @@ export async function getRootDir(input: TextBuffer | File | string | null): Prom
   if (file && isDirectory(file)) {
     dir = new Directory(file.getPath())
   } else {
-    dir = file && file.getParent() || getRootDirFallback(file)
+    dir = (file && file.getParent()) || getRootDirFallback(file)
   }
   const cabalRoot = await findProjectRoot(dir, dirHasCabalFile)
   const sandboxRoot = await findProjectRoot(dir, dirHasSandboxFile)
@@ -105,23 +129,27 @@ export async function getRootDir(input: TextBuffer | File | string | null): Prom
   return dir
 }
 
-const HS = require('../hs/hs.min.js') as IHS
+import HS = require('../hs/hs.min.js')
+export { ITarget, IDotCabal, IImport, IModuleImports } from '../hs/hs.min.js'
 
-export async function parseDotCabal(cabalSource: string): Promise<IDotCabal | null> {
-  return new Promise<IDotCabal | null>((resolve) => {
+export async function parseDotCabal(cabalSource: string) {
+  return new Promise<HS.IDotCabal | null>((resolve) => {
     HS.parseDotCabal(cabalSource, resolve)
   })
 }
-export async function getComponentFromFile(cabalSource: string, filePath: string): Promise<string[]> {
+export async function getComponentFromFile(
+  cabalSource: string,
+  filePath: string,
+) {
   const fp =
     process.platform === 'win32'
-    ? filePath.replace(path.sep, path.posix.sep)
-    : filePath
+      ? filePath.replace(path.sep, path.posix.sep)
+      : filePath
   return new Promise<string[]>((resolve) => {
     HS.getComponentFromFile(cabalSource, fp, resolve)
   })
 }
-export async function unlit(filename: string, source: string): Promise<string> {
+export async function unlit(filename: string, source: string) {
   return new Promise<string>((resolve, reject) => {
     HS.unlit(filename, source, (error, result) => {
       if (error) {
@@ -134,12 +162,11 @@ export async function unlit(filename: string, source: string): Promise<string> {
     })
   })
 }
-function isErrorResult(x): x is { error: string } {
-  // tslint:disable-next-line:no-unsafe-any
+function isErrorResult(x: any): x is { error: string } {
   return x && x.error && typeof x.error === 'string'
 }
-export async function parseHsModuleImports(source: string): Promise<IModuleImports> {
-  return new Promise<IModuleImports>((resolve, reject) => {
+export async function parseHsModuleImports(source: string) {
+  return new Promise<HS.IModuleImports>((resolve, reject) => {
     HS.parseHsModuleImports(source, (result) => {
       if (isErrorResult(result)) {
         reject(new Error(result.error))
@@ -150,46 +177,3 @@ export async function parseHsModuleImports(source: string): Promise<IModuleImpor
   })
 }
 export let { hsEscapeString } = HS
-
-export interface ITarget {
-  type: 'library' | 'executable' | 'test-suite' | 'benchmark'
-  name: string
-  target: string
-}
-
-export interface IDotCabal {
-  name: string
-  version: string
-  targets: ITarget[]
-}
-
-export interface IImport {
-  name: string
-  qualified: boolean
-  hiding: boolean
-  importList: null | Array<string | { parent: string }>
-  alias: null | string
-}
-
-export interface IModuleImports {
-  name: string
-  imports: IImport[]
-}
-
-export interface IHS {
-  parseDotCabal(cabalSource: string, callback: (result: IDotCabal | null) => void): void
-  parseDotCabalSync(cabalSource: string): IDotCabal
-  getComponentFromFile(cabalSource: string, filePath: string, callback: (result: string[]) => void): void
-  getComponentFromFileSync(cabalSource: string, filePath: string): string[]
-  unlit(
-    filename: string, source: string,
-    callback: (
-      error: null | string,
-      result: null | string,
-    ) => void,
-  ): void
-  unlitSync(filename: string, source: string): string | { error: string }
-  parseHsModuleImports(source: string, callback: (result: { error: string } | IModuleImports) => void): void
-  parseHsModuleImportsSync(source: string): IModuleImports
-  hsEscapeString(input: string): string
-}
