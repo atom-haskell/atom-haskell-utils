@@ -1,3 +1,16 @@
+## 2.0.1
+
+-   2.0.1
+-   Trigger uv loop while calling out to helper binary
+
+## 2.0.0
+
+-   Use helper binary
+
+## 1.0.2
+
+-   Minor updates
+
 ## 1.0.1
 * On win32, convert backslash to forward slash before passing to HS code
 * Updated typings
