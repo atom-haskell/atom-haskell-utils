@@ -1,6 +1,6 @@
 {
   "name": "atom-haskell-utils",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Various utility functions utilized by atom-haskell packages",
   "main": "./lib/util.js",
   "types": "./lib/util.d.ts",
