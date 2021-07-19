@@ -145,47 +145,49 @@ const cabal2jsonPath = process.env.ATOM_HASKELL_CABAL2JSONPATH
     )
 
 async function runCabal2Json<T>(cabalSource: string, args: string[], def: T) {
-  return new Promise<T>((resolve) => {
-    const cp = CP.execFile(cabal2jsonPath, args, function (
-      error,
-      stdout,
-      _stderr,
-    ) {
-      if (error) {
+  let interval = undefined
+  try {
+    return await new Promise<T>((resolve) => {
+      const cp = CP.execFile(cabal2jsonPath, args, function (
+        error,
+        stdout,
+        _stderr,
+      ) {
+        if (error) {
+          atom.notifications.addError(
+            'Atom-Haskell core error in getComponentFromFile',
+            {
+              detail: error.message,
+              dismissable: true,
+            },
+          )
+          resolve(def)
+        } else {
+          resolve(JSON.parse(stdout))
+        }
+      })
+      try {
+        cp.stdin.write(cabalSource, 'utf8')
+        cp.stdin.end()
+        interval = window.setInterval(() => {
+          ;(process as any).activateUvLoop()
+        }, 100)
+      } catch (e) {
         atom.notifications.addError(
           'Atom-Haskell core error in getComponentFromFile',
           {
-            detail: error.message,
+            detail: e.message,
             dismissable: true,
           },
         )
-        resolve(def)
-      } else {
-        resolve(JSON.parse(stdout))
+        try {
+          cp.kill()
+        } catch (e2) {}
       }
     })
-    let interval = undefined
-    try {
-      cp.stdin.write(cabalSource, 'utf8')
-      cp.stdin.end()
-      interval = window.setInterval(() => {
-        ;(process as any).activateUvLoop()
-      }, 100)
-    } catch (e) {
-      atom.notifications.addError(
-        'Atom-Haskell core error in getComponentFromFile',
-        {
-          detail: e.message,
-          dismissable: true,
-        },
-      )
-      try {
-        cp.kill()
-      } catch (e2) {}
-    } finally {
-      if (interval !== undefined) clearInterval(interval)
-    }
-  })
+  } finally {
+    if (interval !== undefined) clearInterval(interval)
+  }
 }
 
 export async function parseDotCabal(cabalSource: string) {
