@@ -132,22 +132,64 @@ export async function getRootDir(
 import HS = require('../hs/hs.min.js')
 export { ITarget, IDotCabal, IImport, IModuleImports } from '../hs/hs.min.js'
 
-export async function parseDotCabal(cabalSource: string) {
-  return new Promise<HS.IDotCabal | null>((resolve) => {
-    HS.parseDotCabal(cabalSource, resolve)
+import CP = require('child_process')
+const cabal2jsonPath = process.env.ATOM_HASKELL_CABAL2JSONPATH
+  ? process.env.ATOM_HASKELL_CABAL2JSONPATH
+  : path.join(
+      __dirname,
+      '..',
+      'bin',
+      'cabal2json-' +
+        process.platform +
+        (process.platform === 'win32' ? '.exe' : ''),
+    )
+
+async function runCabal2Json<T>(cabalSource: string, args: string[], def: T) {
+  return new Promise<T>((resolve) => {
+    const cp = CP.execFile(cabal2jsonPath, args, function (
+      error,
+      stdout,
+      _stderr,
+    ) {
+      if (error) {
+        atom.notifications.addError(
+          'Atom-Haskell core error in getComponentFromFile',
+          {
+            detail: error.message,
+            dismissable: true,
+          },
+        )
+        resolve(def)
+      } else {
+        resolve(JSON.parse(stdout))
+      }
+    })
+    try {
+      cp.stdin.write(cabalSource, 'utf8')
+      cp.stdin.end()
+    } catch (e) {
+      atom.notifications.addError(
+        'Atom-Haskell core error in getComponentFromFile',
+        {
+          detail: e.message,
+          dismissable: true,
+        },
+      )
+      try {
+        cp.kill()
+      } catch (e2) {}
+    }
   })
+}
+
+export async function parseDotCabal(cabalSource: string) {
+  return runCabal2Json<HS.IDotCabal | null>(cabalSource, [], null)
 }
 export async function getComponentFromFile(
   cabalSource: string,
   filePath: string,
 ) {
-  const fp =
-    process.platform === 'win32'
-      ? filePath.replace(path.sep, path.posix.sep)
-      : filePath
-  return new Promise<string[]>((resolve) => {
-    HS.getComponentFromFile(cabalSource, fp, resolve)
-  })
+  return runCabal2Json<string[]>(cabalSource, [filePath], [])
 }
 export async function unlit(filename: string, source: string) {
   return new Promise<string>((resolve, reject) => {
