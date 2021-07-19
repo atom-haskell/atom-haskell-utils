@@ -164,9 +164,13 @@ async function runCabal2Json<T>(cabalSource: string, args: string[], def: T) {
         resolve(JSON.parse(stdout))
       }
     })
+    let interval = undefined
     try {
       cp.stdin.write(cabalSource, 'utf8')
       cp.stdin.end()
+      interval = window.setInterval(() => {
+        ;(process as any).activateUvLoop()
+      }, 100)
     } catch (e) {
       atom.notifications.addError(
         'Atom-Haskell core error in getComponentFromFile',
@@ -178,6 +182,8 @@ async function runCabal2Json<T>(cabalSource: string, args: string[], def: T) {
       try {
         cp.kill()
       } catch (e2) {}
+    } finally {
+      if (interval !== undefined) clearInterval(interval)
     }
   })
 }
