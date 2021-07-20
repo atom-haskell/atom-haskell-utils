@@ -1,19 +1,7 @@
 #!/bin/bash
 
-unzip "$1"
-rm cabal2json-{darwin,linux,win32.exe}
-
-tar Jxvf cabal2json-Linux.tar.xz
-mv cabal2json{,-linux}
-rm cabal2json-Linux.tar.xz
-
-tar Jxvf cabal2json-macOS.tar.xz
-mv cabal2json{,-darwin}
-rm cabal2json-macOS.tar.xz
-
-7z x cabal2json-Windows.7z
-mv build-Windows/cabal2json.exe cabal2json-win32.exe
-rmdir build-Windows
-rm cabal2json-Windows.7z
-
-chmod +x cabal2json-{darwin,linux,win32.exe}
+cd "$(dirname "$0")"
+rm cabal2json.min.js || true
+curl -s https://api.github.com/repos/atom-haskell/cabal2json/releases/latest \
+  | jq -r '.assets[0].browser_download_url' \
+  | wget -i -
