@@ -1,3 +1,11 @@
+## 2.1.0
+
+-   Use GHCJS-compiled "binary" for cabal2json
+
+## 2.0.2
+
+-   Fix UV trigger code
+
 ## 2.0.1
 
 -   2.0.1
